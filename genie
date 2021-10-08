@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php
+use SonarSoftware\FreeRadius\Genie;
+
+require("vendor/autoload.php");
+
+$climate = new League\CLImate\CLImate;
+
+if (posix_geteuid() != 0) {
+    $climate->shout("Please run as root because modification to some protected files on the filesystem is required.");
+    return;
+}
+
+$genie = new Genie();
+
+$response = $genie->initialSelection();
