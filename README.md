@@ -35,10 +35,10 @@ manual installation steps if not using the provided setup script , some steps ar
 
 run the following commands to prepare the installation on your server based on a clean server.
 
-For Ubuntu 18.04 
+
+###  Ubuntu 18.04 
 
 add the networkradius repo and import the gpg key and update the local apt database. 
-
 
 1. ` sudo echo 'deb https://packages.networkradius.com/releases/ubuntu-bionic bionic main' >> /etc/apt/sources.list `
 2. ` sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key 0x41382202 `
@@ -120,7 +120,6 @@ if the mysql client gave an error regarding the password then we know that the s
 
 1. if the password is known use the mysql client with the -p parameter to test as follows `mysql -uroot -p`
 2. if the password is lost it can be reset the procedure for this varies slightly dependant on the version of database server installed see [here](https://www.digitalocean.com/community/tutorials/how-to-reset-your-mysql-or-mariadb-root-password-on-ubuntu-18-04) for example 
-
 
 to secure the configuration of the SQL database server answer the questions of the /usr/bin/mysql_secure_installation script as below 
 
