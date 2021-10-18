@@ -1,52 +1,78 @@
 # FreeRADIUS3 Genie
-An installer to setup and configure FreeRADIUS using the NetworkRadius binaries for use with Sonar (this version will work with FreeRADIUS v3.0)
+Sonar's FreeRADIUS3 Genie is a php application to assist with the setup and configuration of FreeRADIUS 3.x using the binaries released by NetworkRadius for use with Sonar
 
 ## Getting started
 
-This installer is designed to be run on a clean installation of [Ubuntu 18.04 or 20.04](http://www.ubuntu.com/download/server), but should also work on Debian stretch or buster.
+The freeradius3-genie/setup script is designed to be run on a clean installation of [Ubuntu 18.04 or 20.04](http://www.ubuntu.com/download/server), but should also work on Debian stretch or buster.
 
-Download and install Debian or Ubuntu on the server you wish to run FreeRADIUS on. 
+Download and install Ubuntu or Debian on the server you wish to run FreeRADIUS on. 
 
-The bash kickstart script will get you up and running quickly. 
-It will configure the server for use with the freeradius binary packages provided by networkradius.com, download mariadb, and create swap space on the server if required. 
+The setup script will try and get you up and running quickly but manual steps are show below incase setup encounters an error and fails. 
 
-Once Debian or Ubuntu is installed, SSH in and run the following commands to prepare your installation:
+It will configure the server for use with the freeradius binary packages provided by networkradius.com, install mariadb, install php-cli. 
+setup will also create a swap space on the server if required. 
+
+Once Debian or Ubuntu is installed, login and run the following commands to prepare your installation:
 
 Run these commands from the root of your home directory.
 
 1. `cd ~`
 2. `git clone https://github.com/ellisway/freeradius3-genie.git`
-3. `sudo chmod 755 ~/freeradius3-genie/src/kickstart.sh` 
-4. `sudo ~/freeradius3-genie/src/kickstart.sh`
-5. No errors? Great! Go to section 'Completing preliminary installation', otherwise start at step 1 below.
+3. `sudo chmod 755 ~/freeradius3-genie/setup` 
+4. `sudo ~/freeradius3-genie/setup`
+   
+If no errors occured we will now be asked to secure the database installation move on to the 'Completing preliminary installation' section below.
+to follow the guide for securing the database and the next steps in the setup procedure. 
+
+If an errors did occure please follow the steps below to manually setup your server the steps below are based on Ubuntu 18.04 
+please adjust the networkradius repositry config used below to match your distribution.
 
 ---------------
 
-Once Ubuntu is installed, SSH in and run the following commands to prepare installation:
+manual installation steps if not using the provided setup script , some steps are included to aid with troubleshooting.  
 
-For Ubuntu 18.04 
+!!! if you are following the manual steps due to a setup scrpt failure, please run the checks included below to help determine the cause of failure. 
 
-1. `sudo echo 'deb https://packages.networkradius.com/releases/ubuntu-bionic bionic main' >> /etc/apt/sources.list `
-2. `sudo apt-get update`
-4. `sudo apt-get upgrade`
-5. `sudo apt-get install php-cli php-mbstring php-mysql unzip` 
+run the following commands to prepare the installation on your server based on a clean server.
 
-Once these commands are complete, you should install MariaDB (a replacement for MySQL) and the FreeRADIUS server itself. 
-Run the following commands to complete these steps:
 
-1. `sudo apt-get install mariadb-server mariadb-client`
-2. `sudo apt-get install freeradius freeradius-common freeradius-utils freeradius-mysql`
+###  Ubuntu 18.04 
 
-Once all packages are installed, you can download FreeRADIUS3 Genie.
+add the networkradius repo and import the gpg key and update the local apt database. 
+
+1. ` sudo echo 'deb https://packages.networkradius.com/releases/ubuntu-bionic bionic main' >> /etc/apt/sources.list `
+2. ` sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key 0x41382202 `
+3. ` sudo apt-get update `
+
+to check your apt sources.list for the presence of the networkradius repo and the apt gpg key. 
+
+4. ` sudo cat /etc/apt/sources.list | grep networkradius `
+5. ` sudo apt-key list | grep networkradius `
+
+upgrade system base packages  
+
+6. ` sudo apt-get upgrade `
+
+install php 
+
+8. ` sudo apt-get install php-cli php-mbstring php-mysql ` 
+
+Once these commands are complete, you can install your preffered supported database server MySQL or MariaDB, and the FreeRADIUS server itself. 
+Run the following commands to complete these steps MariaDB is used as the default by the setup script and in the manual steps here.
+
+Make sure to check that the system will use the networkradius binaries using apt-cache policy 
+
+1. ` sudo apt-get install mariadb-server mariadb-client `
+2. ` sudo apt-cache policy freeradius `  
+3. ` sudo apt-get install freeradius freeradius-common freeradius-utils freeradius-mysql `
+
+Once all packages are installed, you can download FreeRADIUS3 Genie, those who are just troubleshooting can skip this !  
 
 Run these commands from the root of your home directory.
 
-1. `cd ~`
-2. `wget https://github.com/ellisway/freeradius3-genie/archive/master.zip` 
-3. `unzip master.zip`
-4. `mv freeradius3_genie-master/ freeradius3_genie/`
-5. `cd freeradius3_genie`
-6. `php genie` 
+1. ` cd ~ `
+2. ` git clone https://github.com/ellisway/freeradius3-genie.git ` 
+3. ` chmod 755 ~/freeradius3-genie/setup ` 
 
 ### A note on hosting
 
@@ -68,9 +94,34 @@ To setup swap, run the following commands as root (or by putting 'sudo' in front
 
 -----------
 
-## Completing preliminary installation
+### Completing preliminary installation
 
-If the kickstart worked, you can start going through the menu options in the numbered list below.. otherwise now that all the necessary software to run your FreeRADIUS server is installed, you will need to configure your SQL database. To do this, run `sudo /usr/bin/mysql_secure_installation` and answer the questions using the following:
+## Database tasks 
+
+If the setup worked you will now be at the secure database installation stage this includes setting up the database root password, answer the questions as in the list below. 
+
+if running manually it is now time to secure the database installation using the command `sudo /usr/bin/mysql_secure_installation`, answer the questions using the list below.
+
+if you have reached this step during troubleshooting all system packages needed to run your FreeRADIUS server should be correctly installed.
+if the database secure installation failed during setup please check to make sure the database server is running and has a clean default config
+
+Note the default root password for a fresh install of MySQL or MariaDB is a blank unset password.
+
+a easy way to check this is to run the mysql client as below, note we do not pass `-p ` parameter to the mysql client in the test below 
+this will confirm that the database server is running and you can connect and that the database root password has not yet been set 
+
+1. ` mysql -uroot ` 
+
+if the above command worked you will now be inside the sql client connected to the server as the root user, to exit from the mysql client type the command below and press enter
+
+1. ` \q; ` 
+
+if the mysql client gave an error regarding the password then we know that the sql server root password is not blank your choices at this stage are 
+
+1. if the password is known use the mysql client with the -p parameter to test as follows `mysql -uroot -p`
+2. if the password is lost it can be reset the procedure for this varies slightly dependant on the version of database server installed see [here](https://www.digitalocean.com/community/tutorials/how-to-reset-your-mysql-or-mariadb-root-password-on-ubuntu-18-04) for example 
+
+to secure the configuration of the SQL database server answer the questions of the /usr/bin/mysql_secure_installation script as below 
 
 1. **Enter current password for root (enter for none):** - Press enter
 2. **Set root password? [Y/n]** - Press 'y'
@@ -84,14 +135,22 @@ Once this is done, we have a very basic server setup - FreeRADIUS and the MySQL 
 
 ## Configuration
 
-In order to allow the Sonar `genie` tool to setup everything else for you, you need to enter the MySQL root password you setup a minute ago in a **.env** file. The kickstart script will have nano opened up on the .env after the mysql configuration, otherwise yype `nano .env`. You'll see a line that says `MYSQL_PASSWORD=changeme`. Use 
-the backspace key to delete `changeme` and replace it with the MySQL root password you setup. Press `CTRL+X` to exit, and save your changes. **Make sure you record this root password somewhere, as you will need it in the future!**
+In order to allow the Sonar `genie` tool to setup everything else for you, you need to enter the MySQL root password you setup in the above steps during the secure database installation script in a hidden file within the freeradius3-genie directory called .env . if the setup script worked it will have opened the test editor nano to edit the .env after the mysql configuration, as we are running this process manually we need to perform the following task now by hand.
+
+run ` nano .env `. if You see a line that says `MYSQL_PASSWORD=changeme`. 
+
+Use the arrow keys to move the curser to the end of the line then use the backspace key to delete `changeme` and replace it with the MySQL root password you have set . 
+Press `CTRL+X` to exit, and save your changes. **Make sure you record this root password somewhere, incase it isneeded in the future!**
+
+if the file is blank then add the enviroment variable to thye file as follow without any quotes, Note passwords are CaSe SeNsItIvE 
+
+` MYSQL_PASSWORD=YOURPASSWORD '  
 
 Once that's done, we're ready to start using genie!
 
 ## Genie
 
-Genie is a command line tool we built to help automate the setup and configuration of your FreeRADIUS server. We're going to step through each initial setup item to get our initial configuration out of the way. Type `php genie` and you'll see something like this:
+Genie is a command php application built to help automate the setup and configuration of your FreeRADIUS server. We're going to step through each initial setup item to get our initial configuration out of the way. Type `php genie` and you'll see something like this:
 
 ![Image of Genie](https://github.com/SonarSoftware/freeradius_genie/blob/master/images/genie.png)
 

@@ -2,7 +2,7 @@
 #
 ###     configure system to use networkradius.com binary packages these are newer than those supplied by ubuntu     ###
 #
-###     determine for distribution and version and setup the networkradius repo if needed    ###
+###     determine the distribution and version and setup the networkradius repo if needed    ###
 #
 if [ ! $UID = 0 ]; then
     echo This must be run as root
@@ -89,7 +89,14 @@ apt-get upgrade --yes
 apt-get install --yes php-cli php-mbstring php-mysql php-curl unzip mariadb-server mariadb-client
 apt-cache policy freeradius | grep -q networkradius
 if [ $? = 1 ]; then
-    echo "NetworkRADIUS version was not installed.. failing!"
+    echo "ERROR"
+    echo ""
+    echo "the apt policy for freeradius would install distribution provided packages!!!"
+    echo "please check/correct the apt config to install the NetworkRADIUS binaries!!!"
+    echo "you can check the policy using the command!!!"
+    echo "apt-cache policy freeradius"
+    echo ""
+    echo ".. exiting due to apt policy mismatch !"
     exit 1
 fi
 
@@ -181,7 +188,7 @@ if [ -s .env ]
 fi
 
 echo ""
-echo "it is now time to run genie amd perform initial configuration once complete the coa-relay-pool configuration (/etc/freeradius/sites-config/coa-relay/pool.conf) "
-echo "will need to be edited by hand as genie currently does not have logic to create the coa home_server/nas list for the pool "
+echo "all initial package install tasks have completed" 
+echo "it is now time to run genie amd perform initial configuration"
 echo ""
 # eof
