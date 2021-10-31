@@ -39,8 +39,23 @@ if lsb_release -d | awk -F"\t" '{print $2}' | grep -q Ubuntu
                             echo "ondrej-ubuntu-php package repo is already present in (/etc/apt/sources.list.d/)"
                         else
                             echo "creating the repo file with the address ( http://ppa.launchpad.net/ondrej/php/ubuntu bionic main) to (/etc/apt/sources.list.d/ondrej-ubuntu-php-bionic.list)"
-                            echo 'deb [trusted=yes] http://ppa.launchpad.net/ondrej/php/ubuntu bionic main' >> /etc/apt/sources.list.d/ondrej-ubuntu-php-bionic.list
+                            echo 'deb http://ppa.launchpad.net/ondrej/php/ubuntu bionic main' >> /etc/apt/sources.list.d/ondrej-ubuntu-php-bionic.list
                             echo 'deb-src http://ppa.launchpad.net/ondrej/php/ubuntu bionic main' >> /etc/apt/sources.list.d/ondrej-ubuntu-php-bionic.list
+                            
+                            export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
+                            if apt-key list | grep -q ondrej
+                                then 
+                                    echo "the ondrej php repo gpg key was found"
+                                else
+                                    echo "the ondrej php repo gpg key was not found we will add it to the local keyring now "
+                                    apt-key adv --keyserver keyserver.ubuntu.com --recv-key 0xE5267A6C
+                                if apt-key list | grep -q ondrej
+                                then 
+                                    echo "the ondrej php gpg key was added successfully"
+                                else 
+                                    echo "something went wrong while adding the ondrej php gpg key"
+                                fi
+                            fi 
                     fi
             fi
 elif lsb_release -d | awk -F"\t" '{print $2}' | grep -q Debian
