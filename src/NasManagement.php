@@ -191,7 +191,7 @@ class NasManagement
     * change the password of a nas without a coa endpoint
     */
     public function changeNasPw()
-    {
+     {
         $input = $this->climate->lightBlue()->input("What is the NAS IP address?");
         $ipAddress = null;
         while ($ipAddress == null || filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
@@ -211,10 +211,6 @@ class NasManagement
         $sth->execute();
         $i = 1;
         foreach ($sth->fetchAll() as $record)
-        {
-            $this->climate->shout("nas {$record['shortname']}");
-            $i++;
-        }
         $name = ("{$record['shortname']}");
 
         $characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -222,19 +218,25 @@ class NasManagement
         for ($i = 0; $i < 16; $i++) {
             $secret .= $characters[rand(0, strlen($characters) - 1)];
         }
-        
-        $sth = $this->dbh->prepare("UPDATE nas SET secret = '$secret' WHERE nasname = '$ipAddress';");
-        if ($sth->execute([$ipAddress, substr($name,0,255), 'other', $secret, 'Added via the Sonar FreeRADIUS Genie tool',0]))
-        {
-            $this->climate->bold()->magenta("updated the NAS with a new random secret of $secret - if you need to see this password in the future use the list nas feature!");
-        }
-        else
-        {
+
+        $sth = $this->dbh->prepare("SELECT coa, shortname FROM nas WHERE nasname ='$ipAddress'");
+        $sth->execute();
+        $i = 1;
+        foreach ($sth->fetchAll() as $record)
+        $name = ("{$record['shortname']}");
+        $coa = ("{$record['coa']}");
+        if ($coa == 0 ) {
+            $this->climate->bold()->yellow("nas $name exists in the database and has coa disabled.") ;
+            $sth = $this->dbh->prepare("UPDATE nas SET secret = '$secret' WHERE (nasname = '$ipAddress' AND coa = '0');");
+            $sth->execute();
+            $this->climate->bold()->magenta("updated the NAS with a new random secret of $secret - if you need to see this password in the future use the list nas function");
+        } else {
+            $this->climate->bold()->yellow("nas $name exists in the database and has coa enabled.") ;
             $this->climate->shout("Failed to change the NAS password");
             return;
         }
 
-        try {
+    try {
             CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
         }
         catch (RuntimeException $e)
@@ -243,7 +245,7 @@ class NasManagement
         }
 
     }
-    
+
     /**
     * change the password of a nas with a coa endpoint
     */
@@ -268,10 +270,6 @@ class NasManagement
         $sth->execute();
         $i = 1;
         foreach ($sth->fetchAll() as $record)
-        {
-            $this->climate->shout("nas {$record['shortname']}");
-            $i++;
-        }
         $name = ("{$record['shortname']}");
 
         $characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -279,20 +277,26 @@ class NasManagement
         for ($i = 0; $i < 16; $i++) {
             $secret .= $characters[rand(0, strlen($characters) - 1)];
         }
-        
-        $sth = $this->dbh->prepare("UPDATE nas SET secret = '$secret' WHERE nasname = '$ipAddress';");
-        if ($sth->execute([$ipAddress, substr($name,0,255), 'other', $secret, 'Added via the Sonar FreeRADIUS Genie tool',TRUE]))
-        {
-            $this->climate->bold()->magenta("updated the NAS with a new random secret of $secret - if you need to see this password in the future use the list nas feature!");
+
+        $sth = $this->dbh->prepare("SELECT coa, shortname FROM nas WHERE nasname ='$ipAddress'");
+        $sth->execute();
+        $i = 1;
+        foreach ($sth->fetchAll() as $record)
+        $name = ("{$record['shortname']}");
+        $coa = ("{$record['coa']}");
+        if ($coa == 1 ) {
+            $this->climate->bold()->yellow("nas $name exists in the database and has coa enabled.") ;
+            $sth = $this->dbh->prepare("UPDATE nas SET secret = '$secret' WHERE (nasname = '$ipAddress' AND coa = '1');");
+            $sth->execute();
+            $this->climate->bold()->magenta("updated the NAS with a new random secret of $secret - if you need to see this password in the future use the list nas function");
             CommandExecutor::executeCommand("/bin/sed -i 's/secret = .*/secret = $secret/g' /etc/freeradius/sites-config/coa-relay/homeservers/$name.conf");
-        }
-        else
-        {
+        } else {
+            $this->climate->bold()->yellow("nas $name exists in the database and has coa disabled.") ;
             $this->climate->shout("Failed to change the NAS password");
             return;
         }
 
-        try {
+    try {
             CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
         }
         catch (RuntimeException $e)
@@ -301,7 +305,7 @@ class NasManagement
         }
 
     }
-    
+
     /**
      * Delete a NAS without a coa endpoint
      */
@@ -421,7 +425,6 @@ class NasManagement
                 $result = $sth->fetch(PDO::FETCH_ASSOC);
                 if ($result !== false)
                     {
-//                  print_r($result);
                     $this->climate->shout("home_server = {$result['GROUP_CONCAT(DISTINCT shortname )']}");
                     $coaepl = ("localhost-coa,{$result['GROUP_CONCAT(DISTINCT shortname )']}");
                     CommandExecutor::executeCommand("/bin/sed -i 's/home_server = .*/home_server = $coaepl/g' /etc/freeradius/sites-config/coa-relay/pool.conf");
