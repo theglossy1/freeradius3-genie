@@ -29,9 +29,7 @@ class DatabaseSetup
         $sth->execute([getenv('MYSQL_PASSWORD')]);
         $this->dbh->exec("FLUSH PRIVILEGES");
         exec("/usr/bin/mysql -uroot -p" . escapeshellarg(getenv("MYSQL_PASSWORD")) . " radius < /etc/freeradius/mods-config/sql/main/mysql/schema.sql");
-        $this->dbh = new \PDO('mysql:dbname=radius;host=localhost', 'root', getenv('MYSQL_PASSWORD'));
-        $sth = $this->dbh->prepare("ALTER TABLE nas ADD coa BOOLEAN DEFAULT FALSE NOT NULL");
-        $sth->execute([getenv('MYSQL_PASSWORD')]);
+        exec("/usr/bin/mysql -uroot -p" . escapeshellarg(getenv("MYSQL_PASSWORD")) . " radius < ./conf/3.0/sql-nas-coa-schema.sql");
         $this->climate->info("SUCCESS!");
     }
 
