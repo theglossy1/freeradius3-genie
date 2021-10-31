@@ -326,7 +326,7 @@ class NasManagement
             }
         }
         $sth = $this->dbh->prepare("SELECT nasname FROM nas WHERE nasname='$ipAddress'");
-        $sth->execute([$ipAddress]);
+        $sth->execute();
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         if ($result == false)
         {
@@ -338,23 +338,23 @@ class NasManagement
         $i = 1;
         foreach ($sth->fetchAll() as $record)
         {
-            $this->climate->shout("nas {$record['shortname']}");
+            $this->climate->bold()->yellow("nas {$record['shortname']}");
             $i++;
         }
         $name = ("{$record['shortname']}");
         $coa = ("{$record['coa']}");
         if ($coa == 1 )
         {
-            $this->climate->shout("the nas {$record['shortname']} currently has a coa status of {$record['coa']} ");
-            $this->climate->shout("Failed to delete the NAS. the nas is configured with coa! ");
-            $this->climate->shout("use the List NAS entries function for hints.");
+            $this->climate->bold()->red("the nas {$record['shortname']} currently has a coa status of {$record['coa']} ");
+            $this->climate->bold()->red("Failed to delete the NAS. the nas is configured with coa! ");
+            $this->climate->bold()->red("use the List NAS entries function for hints.");
         }
         elseif ($coa == 0 )
         {
-        $sth = $this->dbh->prepare("DELETE from nas WHERE nasname=? AND coa=FALSE");
-        $sth->execute([$ipAddress]);
+        $sth = $this->dbh->prepare("DELETE from nas WHERE nasname='$ipAddress' AND coa=FALSE");
+        $sth->execute();
 
-            $this->climate->shout("the nas has been removed! ");
+            $this->climate->bold()->red("the nas has been removed! ");
             try {
                 CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
             }
@@ -390,7 +390,7 @@ class NasManagement
             }
         }
         $sth = $this->dbh->prepare("SELECT nasname FROM nas WHERE nasname='$ipAddress'");
-        $sth->execute([$ipAddress]);
+        $sth->execute();
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         if ($result == false)
         {
@@ -402,22 +402,22 @@ class NasManagement
         $i = 1;
         foreach ($sth->fetchAll() as $record)
         {
-            $this->climate->shout("nas {$record['shortname']}");
+            $this->climate->bold()->yellow("nas {$record['shortname']}");
             $i++;
         }
         $name = ("{$record['shortname']}");
         $coa = ("{$record['coa']}");
         if ($coa == 0 )
         {
-            $this->climate->shout("the nas {$record['shortname']} currently has a coa status of {$record['coa']} ");
-            $this->climate->shout("Failed to delete the NAS. the nas is not configured with coa! ");
-            $this->climate->shout("Try using the List NAS entries function for hints.");
+            $this->climate->bold()->red("the nas {$record['shortname']} currently has a coa status of {$record['coa']} ");
+            $this->climate->bold()->red("Failed to delete the NAS. the nas is not configured with coa! ");
+            $this->climate->bold()->red("Try using the List NAS entries function for hints.");
         }
         elseif ($coa == 1 )
         {
-            $sth = $this->dbh->prepare("DELETE from nas WHERE nasname=? AND coa=TRUE");
-            $sth->execute([$ipAddress]);
-            $this->climate->shout("the nas has been removed! ");
+            $sth = $this->dbh->prepare("DELETE from nas WHERE nasname='$ipAddress' AND coa=TRUE");
+            $sth->execute();
+            $this->climate->bold()->red("the nas has been removed! ");
             try {
                 CommandExecutor::executeCommand("/bin/rm /etc/freeradius/sites-config/coa-relay/homeservers/$name.conf");
                 $sth = $this->dbh->prepare("SELECT GROUP_CONCAT(DISTINCT shortname ) FROM nas WHERE coa=TRUE;");
