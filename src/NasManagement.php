@@ -21,7 +21,7 @@ class NasManagement
      */
     public function addNas()
     {
-        $input = $this->climate->lightBlue()->input("What is the NAS IP address?");
+        $input = $this->climate->lightBlue()->input("What is the NAS IP address? to cancel use ip 0.0.0.0: ");
         $ipAddress = null;
         while ($ipAddress == null || filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
         {
@@ -33,6 +33,10 @@ class NasManagement
             elseif (filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
             {
                 $this->climate->shout("That IP address is not valid.");
+            }
+            elseif ($ipAddress === "0.0.0.0")
+            {
+                return ;
             }
         }
 
@@ -89,7 +93,7 @@ class NasManagement
      */
     public function addNasCoa()
     {
-        $input = $this->climate->lightBlue()->input("What is the NAS IP address?");
+        $input = $this->climate->lightBlue()->input("What is the NAS IP address? to cancel use ip 0.0.0.0: ");
         $ipAddress = null;
         while ($ipAddress == null || filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
         {
@@ -101,6 +105,10 @@ class NasManagement
             elseif (filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
             {
                 $this->climate->shout("That IP address is not valid.");
+            }
+            elseif ($ipAddress === "0.0.0.0")
+            {
+                return ;
             }
         }
 
@@ -192,7 +200,7 @@ class NasManagement
     */
     public function changeNasPw()
      {
-        $input = $this->climate->lightBlue()->input("What is the NAS IP address?");
+        $input = $this->climate->lightBlue()->input("What is the NAS IP address? to cancel use ip 0.0.0.0: ");
         $ipAddress = null;
         while ($ipAddress == null || filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
         {
@@ -204,6 +212,10 @@ class NasManagement
             elseif (filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
             {
                 $this->climate->shout("That IP address is not valid.");
+            }
+            elseif ($ipAddress === "0.0.0.0")
+            {
+                return ;
             }
         }
 
@@ -251,7 +263,7 @@ class NasManagement
     */
     public function changeNasPwCoa()
     {
-        $input = $this->climate->lightBlue()->input("What is the NAS IP address?");
+        $input = $this->climate->lightBlue()->input("What is the NAS IP address? to cancel use ip 0.0.0.0: ");
         $ipAddress = null;
         while ($ipAddress == null || filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
         {
@@ -263,6 +275,10 @@ class NasManagement
             elseif (filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
             {
                 $this->climate->shout("That IP address is not valid.");
+            }
+            elseif ($ipAddress === "0.0.0.0")
+            {
+                return ;
             }
         }
 
@@ -311,7 +327,7 @@ class NasManagement
      */
     public function deleteNas()
     {
-        $input = $this->climate->lightBlue()->input("What is the IP address of the NAS you want to remove?");
+        $input = $this->climate->lightBlue()->input("What is the IP address of the NAS you want to remove? to cancel use ip 0.0.0.0: ");
         $ipAddress = null;
         while ($ipAddress == null || filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
         {
@@ -324,7 +340,12 @@ class NasManagement
             {
                 $this->climate->shout("That IP address is not valid.");
             }
+            elseif ($ipAddress === "0.0.0.0")
+            {
+                return ;
+            }
         }
+
         $sth = $this->dbh->prepare("SELECT nasname FROM nas WHERE nasname='$ipAddress'");
         $sth->execute();
         $result = $sth->fetch(PDO::FETCH_ASSOC);
@@ -375,7 +396,7 @@ class NasManagement
      */
     public function deleteNasCoa()
     {
-        $input = $this->climate->lightBlue()->input("What is the IP address of the NAS you want to remove?");
+        $input = $this->climate->lightBlue()->input("What is the IP address of the NAS you want to remove? to cancel use ip 0.0.0.0: ");
         $ipAddress = null;
         while ($ipAddress == null || filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
         {
@@ -388,7 +409,12 @@ class NasManagement
             {
                 $this->climate->shout("That IP address is not valid.");
             }
+            elseif ($ipAddress === "0.0.0.0")
+            {
+                return ;
+            }
         }
+
         $sth = $this->dbh->prepare("SELECT nasname FROM nas WHERE nasname='$ipAddress'");
         $sth->execute();
         $result = $sth->fetch(PDO::FETCH_ASSOC);
