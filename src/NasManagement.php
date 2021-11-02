@@ -21,7 +21,7 @@ class NasManagement
      */
     public function addNas()
     {
-        $input = $this->climate->lightBlue()->input("What is the NAS IP address?");
+        $input = $this->climate->lightBlue()->input("What is the NAS IP address? to cancel use ip 0.0.0.0: ");
         $ipAddress = null;
         while ($ipAddress == null || filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
         {
@@ -33,6 +33,10 @@ class NasManagement
             elseif (filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
             {
                 $this->climate->shout("That IP address is not valid.");
+            }
+            elseif ($ipAddress === "0.0.0.0")
+            {
+                return ;
             }
         }
 
@@ -89,7 +93,7 @@ class NasManagement
      */
     public function addNasCoa()
     {
-        $input = $this->climate->lightBlue()->input("What is the NAS IP address?");
+        $input = $this->climate->lightBlue()->input("What is the NAS IP address? to cancel use ip 0.0.0.0: ");
         $ipAddress = null;
         while ($ipAddress == null || filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
         {
@@ -101,6 +105,10 @@ class NasManagement
             elseif (filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
             {
                 $this->climate->shout("That IP address is not valid.");
+            }
+            elseif ($ipAddress === "0.0.0.0")
+            {
+                return ;
             }
         }
 
@@ -191,8 +199,8 @@ class NasManagement
     * change the password of a nas without a coa endpoint
     */
     public function changeNasPw()
-    {
-        $input = $this->climate->lightBlue()->input("What is the NAS IP address?");
+     {
+        $input = $this->climate->lightBlue()->input("What is the NAS IP address? to cancel use ip 0.0.0.0: ");
         $ipAddress = null;
         while ($ipAddress == null || filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
         {
@@ -205,16 +213,16 @@ class NasManagement
             {
                 $this->climate->shout("That IP address is not valid.");
             }
+            elseif ($ipAddress === "0.0.0.0")
+            {
+                return ;
+            }
         }
 
         $sth = $this->dbh->prepare("SELECT shortname FROM nas WHERE nasname ='$ipAddress'");
         $sth->execute();
         $i = 1;
         foreach ($sth->fetchAll() as $record)
-        {
-            $this->climate->shout("nas {$record['shortname']}");
-            $i++;
-        }
         $name = ("{$record['shortname']}");
 
         $characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -222,19 +230,25 @@ class NasManagement
         for ($i = 0; $i < 16; $i++) {
             $secret .= $characters[rand(0, strlen($characters) - 1)];
         }
-        
-        $sth = $this->dbh->prepare("UPDATE nas SET secret = '$secret' WHERE nasname = '$ipAddress';");
-        if ($sth->execute([$ipAddress, substr($name,0,255), 'other', $secret, 'Added via the Sonar FreeRADIUS Genie tool',0]))
-        {
-            $this->climate->bold()->magenta("updated the NAS with a new random secret of $secret - if you need to see this password in the future use the list nas feature!");
-        }
-        else
-        {
+
+        $sth = $this->dbh->prepare("SELECT coa, shortname FROM nas WHERE nasname ='$ipAddress'");
+        $sth->execute();
+        $i = 1;
+        foreach ($sth->fetchAll() as $record)
+        $name = ("{$record['shortname']}");
+        $coa = ("{$record['coa']}");
+        if ($coa == 0 ) {
+            $this->climate->bold()->yellow("nas $name exists in the database and has coa disabled.") ;
+            $sth = $this->dbh->prepare("UPDATE nas SET secret = '$secret' WHERE (nasname = '$ipAddress' AND coa = '0');");
+            $sth->execute();
+            $this->climate->bold()->magenta("updated the NAS with a new random secret of $secret - if you need to see this password in the future use the list nas function");
+        } else {
+            $this->climate->bold()->yellow("nas $name exists in the database and has coa enabled.") ;
             $this->climate->shout("Failed to change the NAS password");
             return;
         }
 
-        try {
+    try {
             CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
         }
         catch (RuntimeException $e)
@@ -243,13 +257,13 @@ class NasManagement
         }
 
     }
-    
+
     /**
     * change the password of a nas with a coa endpoint
     */
     public function changeNasPwCoa()
     {
-        $input = $this->climate->lightBlue()->input("What is the NAS IP address?");
+        $input = $this->climate->lightBlue()->input("What is the NAS IP address? to cancel use ip 0.0.0.0: ");
         $ipAddress = null;
         while ($ipAddress == null || filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
         {
@@ -262,16 +276,16 @@ class NasManagement
             {
                 $this->climate->shout("That IP address is not valid.");
             }
+            elseif ($ipAddress === "0.0.0.0")
+            {
+                return ;
+            }
         }
 
         $sth = $this->dbh->prepare("SELECT shortname FROM nas WHERE nasname ='$ipAddress'");
         $sth->execute();
         $i = 1;
         foreach ($sth->fetchAll() as $record)
-        {
-            $this->climate->shout("nas {$record['shortname']}");
-            $i++;
-        }
         $name = ("{$record['shortname']}");
 
         $characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -279,20 +293,26 @@ class NasManagement
         for ($i = 0; $i < 16; $i++) {
             $secret .= $characters[rand(0, strlen($characters) - 1)];
         }
-        
-        $sth = $this->dbh->prepare("UPDATE nas SET secret = '$secret' WHERE nasname = '$ipAddress';");
-        if ($sth->execute([$ipAddress, substr($name,0,255), 'other', $secret, 'Added via the Sonar FreeRADIUS Genie tool',TRUE]))
-        {
-            $this->climate->bold()->magenta("updated the NAS with a new random secret of $secret - if you need to see this password in the future use the list nas feature!");
+
+        $sth = $this->dbh->prepare("SELECT coa, shortname FROM nas WHERE nasname ='$ipAddress'");
+        $sth->execute();
+        $i = 1;
+        foreach ($sth->fetchAll() as $record)
+        $name = ("{$record['shortname']}");
+        $coa = ("{$record['coa']}");
+        if ($coa == 1 ) {
+            $this->climate->bold()->yellow("nas $name exists in the database and has coa enabled.") ;
+            $sth = $this->dbh->prepare("UPDATE nas SET secret = '$secret' WHERE (nasname = '$ipAddress' AND coa = '1');");
+            $sth->execute();
+            $this->climate->bold()->magenta("updated the NAS with a new random secret of $secret - if you need to see this password in the future use the list nas function");
             CommandExecutor::executeCommand("/bin/sed -i 's/secret = .*/secret = $secret/g' /etc/freeradius/sites-config/coa-relay/homeservers/$name.conf");
-        }
-        else
-        {
+        } else {
+            $this->climate->bold()->yellow("nas $name exists in the database and has coa disabled.") ;
             $this->climate->shout("Failed to change the NAS password");
             return;
         }
 
-        try {
+    try {
             CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
         }
         catch (RuntimeException $e)
@@ -301,13 +321,13 @@ class NasManagement
         }
 
     }
-    
+
     /**
      * Delete a NAS without a coa endpoint
      */
     public function deleteNas()
     {
-        $input = $this->climate->lightBlue()->input("What is the IP address of the NAS you want to remove?");
+        $input = $this->climate->lightBlue()->input("What is the IP address of the NAS you want to remove? to cancel use ip 0.0.0.0: ");
         $ipAddress = null;
         while ($ipAddress == null || filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
         {
@@ -320,9 +340,14 @@ class NasManagement
             {
                 $this->climate->shout("That IP address is not valid.");
             }
+            elseif ($ipAddress === "0.0.0.0")
+            {
+                return ;
+            }
         }
+
         $sth = $this->dbh->prepare("SELECT nasname FROM nas WHERE nasname='$ipAddress'");
-        $sth->execute([$ipAddress]);
+        $sth->execute();
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         if ($result == false)
         {
@@ -334,23 +359,23 @@ class NasManagement
         $i = 1;
         foreach ($sth->fetchAll() as $record)
         {
-            $this->climate->shout("nas {$record['shortname']}");
+            $this->climate->bold()->yellow("nas {$record['shortname']}");
             $i++;
         }
         $name = ("{$record['shortname']}");
         $coa = ("{$record['coa']}");
         if ($coa == 1 )
         {
-            $this->climate->shout("the nas {$record['shortname']} currently has a coa status of {$record['coa']} ");
-            $this->climate->shout("Failed to delete the NAS. the nas is configured with coa! ");
-            $this->climate->shout("use the List NAS entries function for hints.");
+            $this->climate->bold()->red("the nas {$record['shortname']} currently has a coa status of {$record['coa']} ");
+            $this->climate->bold()->red("Failed to delete the NAS. the nas is configured with coa! ");
+            $this->climate->bold()->red("use the List NAS entries function for hints.");
         }
         elseif ($coa == 0 )
         {
-        $sth = $this->dbh->prepare("DELETE from nas WHERE nasname=? AND coa=FALSE");
-        $sth->execute([$ipAddress]);
+        $sth = $this->dbh->prepare("DELETE from nas WHERE nasname='$ipAddress' AND coa=FALSE");
+        $sth->execute();
 
-            $this->climate->shout("the nas has been removed! ");
+            $this->climate->bold()->red("the nas has been removed! ");
             try {
                 CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
             }
@@ -371,7 +396,7 @@ class NasManagement
      */
     public function deleteNasCoa()
     {
-        $input = $this->climate->lightBlue()->input("What is the IP address of the NAS you want to remove?");
+        $input = $this->climate->lightBlue()->input("What is the IP address of the NAS you want to remove? to cancel use ip 0.0.0.0: ");
         $ipAddress = null;
         while ($ipAddress == null || filter_var($ipAddress, FILTER_VALIDATE_IP) === false)
         {
@@ -384,9 +409,14 @@ class NasManagement
             {
                 $this->climate->shout("That IP address is not valid.");
             }
+            elseif ($ipAddress === "0.0.0.0")
+            {
+                return ;
+            }
         }
+
         $sth = $this->dbh->prepare("SELECT nasname FROM nas WHERE nasname='$ipAddress'");
-        $sth->execute([$ipAddress]);
+        $sth->execute();
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         if ($result == false)
         {
@@ -398,22 +428,22 @@ class NasManagement
         $i = 1;
         foreach ($sth->fetchAll() as $record)
         {
-            $this->climate->shout("nas {$record['shortname']}");
+            $this->climate->bold()->yellow("nas {$record['shortname']}");
             $i++;
         }
         $name = ("{$record['shortname']}");
         $coa = ("{$record['coa']}");
         if ($coa == 0 )
         {
-            $this->climate->shout("the nas {$record['shortname']} currently has a coa status of {$record['coa']} ");
-            $this->climate->shout("Failed to delete the NAS. the nas is not configured with coa! ");
-            $this->climate->shout("Try using the List NAS entries function for hints.");
+            $this->climate->bold()->red("the nas {$record['shortname']} currently has a coa status of {$record['coa']} ");
+            $this->climate->bold()->red("Failed to delete the NAS. the nas is not configured with coa! ");
+            $this->climate->bold()->red("Try using the List NAS entries function for hints.");
         }
         elseif ($coa == 1 )
         {
-            $sth = $this->dbh->prepare("DELETE from nas WHERE nasname=? AND coa=TRUE");
-            $sth->execute([$ipAddress]);
-            $this->climate->shout("the nas has been removed! ");
+            $sth = $this->dbh->prepare("DELETE from nas WHERE nasname='$ipAddress' AND coa=TRUE");
+            $sth->execute();
+            $this->climate->bold()->red("the nas has been removed! ");
             try {
                 CommandExecutor::executeCommand("/bin/rm /etc/freeradius/sites-config/coa-relay/homeservers/$name.conf");
                 $sth = $this->dbh->prepare("SELECT GROUP_CONCAT(DISTINCT shortname ) FROM nas WHERE coa=TRUE;");
@@ -421,7 +451,6 @@ class NasManagement
                 $result = $sth->fetch(PDO::FETCH_ASSOC);
                 if ($result !== false)
                     {
-//                  print_r($result);
                     $this->climate->shout("home_server = {$result['GROUP_CONCAT(DISTINCT shortname )']}");
                     $coaepl = ("localhost-coa,{$result['GROUP_CONCAT(DISTINCT shortname )']}");
                     CommandExecutor::executeCommand("/bin/sed -i 's/home_server = .*/home_server = $coaepl/g' /etc/freeradius/sites-config/coa-relay/pool.conf");
