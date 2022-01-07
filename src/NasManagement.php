@@ -78,7 +78,7 @@ class NasManagement
         }
 
         try {
-            CommandExecutor::executeCommand("/usr/sbin/service freeradius reload");
+            CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
         }
         catch (RuntimeException $e)
         {
@@ -161,7 +161,7 @@ class NasManagement
         }
 
         try {
-            CommandExecutor::executeCommand("/usr/sbin/service freeradius reload");
+            CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
         }
         catch (RuntimeException $e)
         {
@@ -240,7 +240,7 @@ class NasManagement
         }
 
     try {
-            CommandExecutor::executeCommand("/usr/sbin/service freeradius reload");
+            CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
         }
         catch (RuntimeException $e)
         {
@@ -300,7 +300,7 @@ class NasManagement
         }
 
     try {
-            CommandExecutor::executeCommand("/usr/sbin/service freeradius reload");
+            CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
         }
         catch (RuntimeException $e)
         {
@@ -360,7 +360,7 @@ class NasManagement
 
             $this->climate->bold()->red("the nas has been removed! ");
             try {
-                CommandExecutor::executeCommand("/usr/sbin/service freeradius reload");
+                CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
             }
             catch (RuntimeException $e)
             {
@@ -434,7 +434,7 @@ class NasManagement
                     $coaepl = ("localhost-coa,{$result['GROUP_CONCAT(DISTINCT shortname )']}");
                     CommandExecutor::executeCommand("/bin/sed -i 's/home_server = .*/home_server = $coaepl/g' /etc/freeradius/sites-config/coa-relay/pool.conf");
                 }
-                CommandExecutor::executeCommand("/usr/sbin/service freeradius reload");
+                CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
                 }
                 catch (RuntimeException $e)
             {
