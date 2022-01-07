@@ -15,7 +15,7 @@ class NasManagement
         $this->dbh = new \PDO('mysql:dbname=radius;host=localhost', 'root', getenv('MYSQL_PASSWORD'));
         $this->climate = new CLImate;
 
-	$this->goBack = "(ENTER by itself to go back):";
+        $this->goBack = "(ENTER by itself to go back):";
     }
 
     /**
@@ -78,7 +78,7 @@ class NasManagement
         }
 
         try {
-            CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
+            CommandExecutor::executeCommand("/usr/sbin/service freeradius reload");
         }
         catch (RuntimeException $e)
         {
@@ -161,7 +161,7 @@ class NasManagement
         }
 
         try {
-            CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
+            CommandExecutor::executeCommand("/usr/sbin/service freeradius reload");
         }
         catch (RuntimeException $e)
         {
@@ -176,13 +176,18 @@ class NasManagement
     {
         $sth = $this->dbh->prepare("SELECT id, nasname, shortname, secret, coa  FROM nas ORDER BY id ASC");
         $sth->execute();
-        $i = 1;
-        $this->climate->bold()->lightYellow("Index. Nas-Ip-address Nas-Short-Name Nas-Secret Nas-COA-State");
-        foreach ($sth->fetchAll() as $record)
+
+        $all_nas_entries = [];
+        foreach ($sth->fetchAll() as $x => $record)
         {
-            $this->climate->bold()->lightBlue("$i. {$record['nasname']} ({$record['shortname']}) ({$record['secret']}) ({$record['coa']})");
-            $i++;
+            $all_nas_entries[$x] = [
+                'IP address' => $record['nasname'],
+                'Short name' => $record['shortname'],
+                'Secret' => $record['secret'],
+            ];
+            $all_nas_entries[$x]['COA enabled'] = ($record['coa']) ? "Yes" : "";
         }
+        $this->climate->table($all_nas_entries);
     }
 
     /**
@@ -235,7 +240,7 @@ class NasManagement
         }
 
     try {
-            CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
+            CommandExecutor::executeCommand("/usr/sbin/service freeradius reload");
         }
         catch (RuntimeException $e)
         {
@@ -295,7 +300,7 @@ class NasManagement
         }
 
     try {
-            CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
+            CommandExecutor::executeCommand("/usr/sbin/service freeradius reload");
         }
         catch (RuntimeException $e)
         {
@@ -342,20 +347,20 @@ class NasManagement
         }
         $name = ("{$record['shortname']}");
         $coa = ("{$record['coa']}");
-        if ($coa == 1 )
+        if ($coa == 1)
         {
             $this->climate->bold()->red("the nas {$record['shortname']} currently has a coa status of {$record['coa']} ");
             $this->climate->bold()->red("Failed to delete the NAS. the nas is configured with coa! ");
             $this->climate->bold()->red("use the List NAS entries function for hints.");
         }
-        elseif ($coa == 0 )
+        elseif ($coa == 0)
         {
         $sth = $this->dbh->prepare("DELETE from nas WHERE nasname='$ipAddress' AND coa=FALSE");
         $sth->execute();
 
             $this->climate->bold()->red("the nas has been removed! ");
             try {
-                CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
+                CommandExecutor::executeCommand("/usr/sbin/service freeradius reload");
             }
             catch (RuntimeException $e)
             {
@@ -429,7 +434,7 @@ class NasManagement
                     $coaepl = ("localhost-coa,{$result['GROUP_CONCAT(DISTINCT shortname )']}");
                     CommandExecutor::executeCommand("/bin/sed -i 's/home_server = .*/home_server = $coaepl/g' /etc/freeradius/sites-config/coa-relay/pool.conf");
                 }
-                CommandExecutor::executeCommand("/usr/sbin/service freeradius restart");
+                CommandExecutor::executeCommand("/usr/sbin/service freeradius reload");
                 }
                 catch (RuntimeException $e)
             {
