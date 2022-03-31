@@ -1,16 +1,13 @@
-# FreeRADIUS3 Genie
-Sonar's FreeRADIUS3 Genie is a php application to assist with the setup and configuration of FreeRADIUS 3.x using the binaries released by NetworkRadius for use with Sonar.
+# FreeRADIUS 3 Genie
+Sonar's FreeRADIUS 3 Genie is a php application to assist with the setup and configuration of FreeRADIUS 3.x using the binaries released by NetworkRadius for use with Sonar.
 
-This version of FreeRADIUS Genie is geared toward Sonar version 2. It can be used with Sonar v1, but these instructions are for v2.
+FreeRADIUS 3 Genie is geared toward Sonar version 2. It can be used with Sonar v1, but these instructions are for v2.
 
 ## Getting started
 
-The freeradius3-genie/setup script is designed to be run on a clean installation of [Ubuntu 18.04 or 20.04](http://www.ubuntu.com/download/server).
+FreeRADIUS 3 Genie is designed to be run on a clean installation of [Ubuntu 18.04 or 20.04](http://www.ubuntu.com/download/server).
 
-The setup script will try and get you up and running quickly but manual steps are show below incase setup encounters an error and fails.
-
-It will configure the server for use with the freeradius binary packages provided by networkradius.com, install mariadb, and php-cli.
-setup will also create a swap space on the server if required.
+The setup script will configure the server for use with the FreeRADIUS binary packages provided by networkradius.com, MariaDB, and the necessary php components. It will also set up virtual memory swap on the server if required.
 
 You will need to be root in order to run the installation. Use `sudo -i` to become root and load root's environment. Then go to the directory you wish to set up FreeRADIUS 3 Genie on, and run:
 
@@ -20,7 +17,7 @@ cd freeradius3-genie
 ./setup
 ```
 
-`setup` will perform various operation to create a good environment for FreeRADIUS to run. Toward the end of the installation, it will ask a few questions.
+`setup` will perform various operation to create a good environment for FreeRADIUS 3 to run. Toward the end of the installation, it will ask a few questions.
 
 If errors occur, please contact your Sonar Client Experience Manager or [Sonar support](https://docs.sonar.expert/working-with-the-sonar-team-additional-resources/best-practices-for-fast-tracking-a-support-request).
 
@@ -46,7 +43,7 @@ To setup swap, run the following commands as root (or by putting 'sudo' in front
 
 ## Genie
 
-**Genie** is a command php application built to help automate the setup and configuration of your FreeRADIUS server. We're going to step through each initial setup item to get our initial configuration out of the way. Type `./genie` and you'll see something like this:
+**Genie** is a command php application built to help automate the setup and configuration of your FreeRADIUS 3 server. We're going to step through each initial setup item to get our initial configuration out of the way. Type `./genie` and you'll see something like this:
 
 ![Image of Genie](https://github.com/SonarSoftware/freeradius_genie/blob/master/images/genie.png)
 
@@ -57,14 +54,13 @@ This is the tool you'll use to do **all** of your configuration - no need to jum
 Let's start by getting the database setup. Highlight the **Initial Configuration** option, press the space bar to select it, and then press enter. You'll see an option titled **Setup initial database structure** - press the space bar to select it, press enter, and your database will be configured. If you
 receive an error message about credentials, double check the root password you placed into your `.env` file in the **Configuration** section.
 
-Once that's completed, we need to setup the FreeRADIUS configuration files. Select **Perform initial FreeRADIUS configuration** by using the space bar to select it, and then pressing enter. This will configure your FreeRADIUS server to use the SQL server as a backend, and restart it. It will automatically detect the version of FreeRADIUS you're using (2.x.x or 3.x.x) and copy the appropriate flavour of configuration to the /etc/freeradius directory.
+Once that's completed, we need to setup the FreeRADIUS configuration files. Select **Perform initial FreeRADIUS configuration** by using the space bar to select it, and then pressing enter. This will configure your FreeRADIUS server to use the SQL server as a backend, and restart it.
 
 ### Managing your NAS
 
-NAS stands for [Network Access Server](https://en.wikipedia.org/wiki/Network_access_server) - this is the device that you will be connecting to your RADIUS server to manage your clients. Typically, in an ISP network where the NAS is used to manage individual clients, the NAS
-will be something like a PPPoE concentrator. Let's step through adding a new NAS to the FreeRADIUS server using Genie, and then configuring our NAS (a MikroTik router) to use the FreeRADIUS server.
+NAS stands for [Network Access Server](https://en.wikipedia.org/wiki/Network_access_server) - this is the device that you will be connecting to your RADIUS server to manage your clients. Typically, in an ISP network where the NAS is used to manage individual clients, the NAS will be something like a PPPoE concentrator. Let's step through adding a new NAS to the FreeRADIUS server using Genie, and then configuring our NAS (a MikroTik router) to use the FreeRADIUS server.
 
-In Genie (remember, to bring up Genie, just type `php genie`) make sure you're at the top level, and then select **NAS Configuration** followed by **Add NAS**. You will be asked for the IP address of the client, and to enter a short name for it.
+In Genie (remember, to bring up Genie, just type `./genie` from its directory) make sure you're at the top level, and then select **NAS Configuration** followed by **Add NAS**. You will be asked for the IP address of the client, and to enter a short name for it.
 
 ![Image of Genie](https://github.com/SonarSoftware/freeradius_genie/blob/master/images/adding_nas.png)
 
