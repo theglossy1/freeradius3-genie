@@ -3,81 +3,78 @@ Sonar's FreeRADIUS3 Genie is a php application to assist with the setup and conf
 
 ## Getting started
 
-The freeradius3-genie/setup script is designed to be run on a clean installation of [Ubuntu 18.04 or 20.04](http://www.ubuntu.com/download/server), but should also work on Debian stretch or buster.
+The freeradius3-genie/setup script is designed to be run on a clean installation of [Ubuntu 18.04 or 20.04](http://www.ubuntu.com/download/server).
 
-Download and install Ubuntu or Debian on the server you wish to run FreeRADIUS on. 
+The setup script will try and get you up and running quickly but manual steps are show below incase setup encounters an error and fails.
 
-The setup script will try and get you up and running quickly but manual steps are show below incase setup encounters an error and fails. 
+It will configure the server for use with the freeradius binary packages provided by networkradius.com, install mariadb, and php-cli.
+setup will also create a swap space on the server if required.
 
-It will configure the server for use with the freeradius binary packages provided by networkradius.com, install mariadb, install php-cli. 
-setup will also create a swap space on the server if required. 
+You will need to be root in order to run the installation. Use `sudo -i` to become root and load root's environment. Then go to the directory you wish to set up FreeRADIUS 3 Genie on, and run:
 
-Once Debian or Ubuntu is installed, login and run the following commands to prepare your installation:
+```bash
+git clone https://github.com/theglossy1/freeradius3-genie
+cd https://github.com/theglossy1/freeradius3-genie
+./setup
+```
 
-Run these commands from the root of your home directory.
+`setup` will perform various operation to create a good environment for FreeRADIUS to run. Toward the end of the installation, it will ask a few questions.
 
-1. `cd ~`
-2. `git clone https://github.com/ellisway/freeradius3-genie.git`
-3. `sudo chmod 755 ~/freeradius3-genie/setup` 
-4. `sudo ~/freeradius3-genie/setup`
-   
-If no errors occured we will now be asked to secure the database installation move on to the 'Completing preliminary installation' section below.
-to follow the guide for securing the database and the next steps in the setup procedure. 
-
-If an errors did occure please follow the steps below to manually setup your server the steps below are based on Ubuntu 18.04 
-please adjust the networkradius repositry config used below to match your distribution.
+If errors occur, please contact Sonar support.
 
 ---------------
 
-manual installation steps if not using the provided setup script , some steps are included to aid with troubleshooting.  
+manual installation steps if not using the provided setup script , some steps are included to aid with troubleshooting.
 
-!!! if you are following the manual steps due to a setup scrpt failure, please run the checks included below to help determine the cause of failure. 
+!!! if you are following the manual steps due to a setup scrpt failure, please run the checks included below to help determine the cause of failure.
 
 run the following commands to prepare the installation on your server based on a clean server.
 
 
-###  Ubuntu 18.04 
+###  Ubuntu 18.04
 
-add the networkradius repo and import the gpg key and update the local apt database. 
+add the networkradius repo and import the gpg key and update the local apt database.
 
 1. ` sudo echo 'deb https://packages.networkradius.com/releases/ubuntu-bionic bionic main' >> /etc/apt/sources.list `
 2. ` sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key 0x41382202 `
 3. ` sudo apt-get update `
 
-to check your apt sources.list for the presence of the networkradius repo and the apt gpg key. 
+to check your apt sources.list for the presence of the networkradius repo and the apt gpg key.
 
 4. ` sudo cat /etc/apt/sources.list | grep networkradius `
 5. ` sudo apt-key list | grep networkradius `
 
-upgrade system base packages  
+upgrade system base packages
 
 6. ` sudo apt-get upgrade `
 
-install php 
+install php
 
-8. ` sudo apt-get install php-cli php-mbstring php-mysql ` 
+8. ` sudo apt-get install php-cli php-mbstring php-mysql `
 
-Once these commands are complete, you can install your preffered supported database server MySQL or MariaDB, and the FreeRADIUS server itself. 
+Once these commands are complete, you can install your preffered supported database server MySQL or MariaDB, and the FreeRADIUS server itself.
 Run the following commands to complete these steps MariaDB is used as the default by the setup script and in the manual steps here.
 
-Make sure to check that the system will use the networkradius binaries using apt-cache policy 
+Make sure to check that the system will use the networkradius binaries using apt-cache policy
 
 1. ` sudo apt-get install mariadb-server mariadb-client `
-2. ` sudo apt-cache policy freeradius `  
+2. ` sudo apt-cache policy freeradius `
 3. ` sudo apt-get install freeradius freeradius-common freeradius-utils freeradius-mysql `
 
-Once all packages are installed, you can download FreeRADIUS3 Genie, those who are just troubleshooting can skip this !  
+Once all packages are installed, you can download FreeRADIUS3 Genie, those who are just troubleshooting can skip this !
 
 Run these commands from the root of your home directory.
 
 1. ` cd ~ `
-2. ` git clone https://github.com/ellisway/freeradius3-genie.git ` 
-3. ` chmod 755 ~/freeradius3-genie/setup ` 
+2. ` git clone https://github.com/ellisway/freeradius3-genie.git `
+3. ` chmod 755 ~/freeradius3-genie/setup `
 
 ### A note on hosting
 
 If you're hosting this online, it's likely that your server does not have any swap memory setup. If you've selected a server with a low amount of RAM (1-2G), or even if you've picked more, it can be worthwhile setting up a swap partition to make sure you don't run into any out of memory errors.
-Your swap file size should be, at minimum, be equal to the amount of physical RAM on the server. It should be, at maximum, equal to 2x the amount of physical RAM on the server. A good rule of thumb is to just start by making it equal to the amount of available RAM, increasing to double the RAM if you run into out of memory errors.
+
+Your swap file size should be, at minimum, equal to the amount of physical RAM on the server. It should be, at maximum, equal to 2x the amount of physical RAM on the server. A good rule of thumb is to just start by making it equal to the amount of available RAM, increasing to double the RAM if you run into out of memory errors.
+
 If you run into out of memory errors after moving to 2x the amount of RAM, you should increase the amount of RAM on your server rather than increasing swap. The [SwapFaq](https://help.ubuntu.com/community/SwapFaq) on ubuntu.com can be helpful as well.
 
 To setup swap, run the following commands as root (or by putting 'sudo' in front of each command):
@@ -92,69 +89,13 @@ To setup swap, run the following commands as root (or by putting 'sudo' in front
 8. `/sbin/sysctl vm.vfs_cache_pressure=50`
 9. `echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.conf`
 
------------
-
-### Completing preliminary installation
-
-## Database tasks 
-
-If the setup worked you will now be at the secure database installation stage this includes setting up the database root password, answer the questions as in the list below. 
-
-if running manually it is now time to secure the database installation using the command `sudo /usr/bin/mysql_secure_installation`, answer the questions using the list below.
-
-if you have reached this step during troubleshooting all system packages needed to run your FreeRADIUS server should be correctly installed.
-if the database secure installation failed during setup please check to make sure the database server is running and has a clean default config
-
-Note the default root password for a fresh install of MySQL or MariaDB is a blank unset password.
-
-a easy way to check this is to run the mysql client as below, note we do not pass `-p ` parameter to the mysql client in the test below 
-this will confirm that the database server is running and you can connect and that the database root password has not yet been set 
-
-1. ` mysql -uroot ` 
-
-if the above command worked you will now be inside the sql client connected to the server as the root user, to exit from the mysql client type the command below and press enter
-
-1. ` \q; ` 
-
-if the mysql client gave an error regarding the password then we know that the sql server root password is not blank your choices at this stage are 
-
-1. if the password is known use the mysql client with the -p parameter to test as follows `mysql -uroot -p`
-2. if the password is lost it can be reset the procedure for this varies slightly dependant on the version of database server installed see [here](https://www.digitalocean.com/community/tutorials/how-to-reset-your-mysql-or-mariadb-root-password-on-ubuntu-18-04) for example 
-
-to secure the configuration of the SQL database server answer the questions of the /usr/bin/mysql_secure_installation script as below 
-
-1. **Enter current password for root (enter for none):** - Press enter
-2. **Set root password? [Y/n]** - Press 'y'
-3. **New password:** - Enter a strong password and *write it down* - **we will need this password shortly!**
-4. **Remove anonymous users? [Y/n]** - Press 'y'
-5. **Disallow root login remotely? [Y/n]** - Press 'y'
-6. **Remove test database and access to it? [Y/n]** - Press 'y'
-7. **Reload privilege tables now? [Y/n]** - Press 'y'
-
-Once this is done, we have a very basic server setup - FreeRADIUS and the MySQL database are installed we're ready to move onto the initial configuration.
-
-## Configuration
-
-In order to allow the Sonar `genie` tool to setup everything else for you, you need to enter the MySQL root password you setup in the above steps during the secure database installation script in a hidden file within the freeradius3-genie directory called .env . if the setup script worked it will have opened the test editor nano to edit the .env after the mysql configuration, as we are running this process manually we need to perform the following task now by hand.
-
-run ` nano .env `. if You see a line that says `MYSQL_PASSWORD=changeme`. 
-
-Use the arrow keys to move the curser to the end of the line then use the backspace key to delete `changeme` and replace it with the MySQL root password you have set . 
-Press `CTRL+X` to exit, and save your changes. **Make sure you record this root password somewhere, incase it isneeded in the future!**
-
-if the file is blank then add the enviroment variable to thye file as follow without any quotes, Note passwords are CaSe SeNsItIvE 
-
-` MYSQL_PASSWORD=YOURPASSWORD '  
-
-Once that's done, we're ready to start using genie!
-
 ## Genie
 
-Genie is a command php application built to help automate the setup and configuration of your FreeRADIUS server. We're going to step through each initial setup item to get our initial configuration out of the way. Type `php genie` and you'll see something like this:
+**Genie** is a command php application built to help automate the setup and configuration of your FreeRADIUS server. We're going to step through each initial setup item to get our initial configuration out of the way. Type `./genie` and you'll see something like this:
 
 ![Image of Genie](https://github.com/SonarSoftware/freeradius_genie/blob/master/images/genie.png)
 
-This is the tool you'll use to do **all** of your configuration - no need to jump into configuration files or the MySQL database!
+This is the tool you'll use to do **all** of your configuration - no need to jump into configuration files or the MySQL database (but you can if you want)!
 
 ### First steps
 
@@ -250,8 +191,8 @@ Now click the **PPPoE Servers** tab, and click the **+** button to create a serv
 Enter a name for the server, select the interface that your clients will be connecting on, and select the profile we created earlier. If you only want to allow one PPPoE session per host (which you probably do!) check *One Session Per Host*. Make sure all the authentication options at the bottom are checked.
 
 You now have a very basic, functioning PPPoE server. Login to your Sonar instance, navigate to a user account, and access the **Network** tab, and then the **RADIUS** tab. Create a new RADIUS account and note the username and password.
- 
-Now, back in the MikroTik, Click the **Active Connections** tab and try connecting using a PPPoE client, authenticating using the credentials you just created in Sonar. You should be assigned an IP from the pool, and the connection will show up in the list! To assign a static IP, navigate back into Sonar, 
+
+Now, back in the MikroTik, Click the **Active Connections** tab and try connecting using a PPPoE client, authenticating using the credentials you just created in Sonar. You should be assigned an IP from the pool, and the connection will show up in the list! To assign a static IP, navigate back into Sonar,
 go to the **Network** tab on an account, and then **IP Assignments**. Assign an IP to the RADIUS account, and then disconnect and reconnect your PPPoE client. You will be assigned the static IP you selected.
 
 ### Scaling FreeRADIUS to large networks

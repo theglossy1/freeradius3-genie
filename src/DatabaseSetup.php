@@ -161,10 +161,15 @@ class DatabaseSetup
     {
         $sth = $this->dbh->prepare("SELECT Host, User FROM mysql.user WHERE Host != 'localhost' AND Host != '127.0.0.1' AND Host != '::1'");
         $sth->execute();
-        foreach ($sth->fetchAll(PDO::FETCH_ASSOC) as $result)
+        $all_entries = [];
+        foreach ($sth->fetchAll() as $x => $record)
         {
-            $this->climate->lightBlue("{$result['User']} can be used from {$result['Host']}");
+            $user_entries[$x] = [
+                'Username' => $record['User'],
+                'Source IP' => $record['Host'],
+            ];
         }
+        $this->climate->table($user_entries);
     }
 
     /**
