@@ -14,7 +14,7 @@ You will need to be root in order to run the installation. Use `sudo -i` to beco
 
 ```bash
 git clone https://github.com/theglossy1/freeradius3-genie
-cd https://github.com/theglossy1/freeradius3-genie
+cd freeradius3-genie
 ./setup
 ```
 
