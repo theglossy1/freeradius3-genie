@@ -148,18 +148,8 @@ fi
 #
 ###     setup the sql server enviroment (mariadb/mysql)     ###
 #
-
-if [ -s .env ]; then
-    echo "The .env file already exists and has a non zero size you should check its contents"
-else
-    echo "Launching /usr/bin/mysql_secure_installation script to secure the database installation"
-    /usr/bin/mysql_secure_installation
-    echo -e "\n"
-    read -ep "Re-enter the root DB password from above: " DB_PWD
-    echo MYSQL_PASSWORD=$DB_PWD > .env
-    chmod 660 .env
-    chown root:adm .env
-fi
+src/setup_security.sh
 
 echo -e "\nAll initial package install tasks have completed."
 echo -e "Now run './genie' to configure FreeRADIUS 3\n"
+
